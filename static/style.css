@@ -1051,14 +1051,14 @@ p {
     padding-top: 1em;
     padding-bottom: 1em;
     background: linear-gradient(to right, 
-	                        transparent 0%, 
-	                        transparent calc(50% - 2px), 
-	                        #73A0C5 calc(50% - 1px),
+                            transparent 0%, 
+                            transparent calc(50% - 2px), 
+                            #73A0C5 calc(50% - 1px),
                                 transparent calc(50% - 0.9px),
                                 transparent calc(50% + 0.9px),
-	                        #73A0C5 calc(50% + 1px), 
-	                        transparent calc(50% + 2px), 
-	                        transparent 100%);
+                            #73A0C5 calc(50% + 1px), 
+                            transparent calc(50% + 2px), 
+                            transparent 100%);
 }
 .notif-block {
     width:100%;
@@ -1280,4 +1280,57 @@ See more here: https://stackoverflow.com/questions/14202856/background-image-for
 /*                     white */
     background-color: #538fbe;
     color: white;
+}
+
+.chip{
+    display: inline-flex;
+    flex-direction: row;
+    background-color: #e5e5e5;
+    border: none;
+    cursor: default;
+    height: 36px;
+    outline: none;
+    padding: 0;
+    font-size: 14px;
+    font-color: #333333;
+    font-family:"Open Sans", sans-serif;
+    white-space: nowrap;
+    align-items: center;
+    border-radius: 16px;
+    vertical-align: middle;
+    text-decoration: none;
+    justify-content: center;
+    margin-top:5px;
+}
+.chip-head{
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    background-color: #73A0C5;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    align-items: center;
+    user-select: none;
+    border-radius: 50%;
+    justify-content: center;
+    width: 36px;
+    color: #fff;
+    height: 36px;
+    font-size: 20px;
+    margin-right: -4px;
+    text-transform: uppercase;
+}
+.chip-content{
+    cursor: inherit;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    white-space: nowrap;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.chip-content>a{
+   color:#73A0C5;
+   text-decoration: none;
 }

@@ -140,12 +140,46 @@ def author(fullname):
 @app.route('/catalog', methods=['GET'])
 def catalog():
     if request.args.get('q'):
-        q = '%' + request.args.get('q') + '%'
-        papers = query_db("select * from papers                    \
-                         where                                     \
-                               deleted_at is null and              \
-                               lower(title) like  lower(?)         \
-                         order by title", [q])
+        authorid = None
+        keywordid = None
+        domainid= None
+        q =  request.args.get('q')
+        qLike = '%' + request.args.get('q') + '%'
+        a = query_db("select authorid from authors where      \
+                       lower(fullname) = lower(?) ",
+                 [q], one=True)
+        if (a is not None):
+            authorid = a['authorid']
+
+        k = query_db("select keywordid from keywords where      \
+                       lower(keyword) = lower(?)",
+                 [q], one=True)
+
+        if (k is not None):
+            keywordid = k['keywordid']
+
+
+        domain = query_db("select domainid from domains where      \
+                       lower(domainname) = lower(?)",
+                      [q], one=True)
+
+        if (domain is not None) :
+           domainid = domain['domainid']
+
+        papers = query_db("select DISTINCT p.*                               \
+                         from papers as p inner join  papers_authors as pa on p.paperid=pa.paperid                        \
+                              inner join  papers_keywords as pk  on    p.paperid=pk.paperid             \
+                              inner join  papers_domains as pd  on p.paperid=pd.paperid \
+                              and           \
+                              (pa.authorid = ?                      \
+                               or                                   \
+                               pk.keywordid = ?                   \
+                               or \
+                               pd.domainid= ? \
+                               or \
+                               lower(title)  like  lower(?))       \
+                         order by p.lastcommentat desc", [authorid,keywordid,domainid,qLike])
+
     else:
         papers = []
     return render_catalog('catalog/catalog-search.html',
