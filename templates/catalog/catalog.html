@@ -42,12 +42,12 @@
   <div style="overflow-y:scroll; max-height: 300px">
     {% set letters = [] %}
     {% for d in domains %}
-    {% if d.domainname[0] in letters %}
+    {% if d.domainname[0].lower() in letters %}
     <div class="chip">
       <div class="chip-content"> <a href="/domain/{{d.domainname | e}}">{{d.domainname}}</a></div>
     </div>
     {% else %}
-    {% set letters = letters.append(d.domainname[0]) %}
+    {% set letters = letters.append(d.domainname[0].lower()) %}
     {% if loop.index > 1 %}
     <br/>
     {% endif %}
@@ -66,12 +66,12 @@
     {% set letters = [] %}
     {% for k in keywords %}
     <!-- {{comma()}} -->
-    {% if k.keyword[0] in letters %}
+    {% if k.keyword[0].lower() in letters %}
     <div class="chip">
       <div class="chip-content"><a href="/tag/{{k.keyword | e}}">{{k.keyword}}</a></div>
     </div>
     {% else %}
-    {% set letters = letters.append(k.keyword[0]) %}
+    {% set letters = letters.append(k.keyword[0].lower()) %}
     {% if loop.index > 1 %}
     <br/>
     {% endif %}
@@ -86,12 +86,12 @@
   <div style="overflow-y:scroll; max-height: 300px">
     {% set letters = [] %}
     {% for a in authors %}
-    {% if a.fullname[0] in letters %}
+    {% if a.fullname[0].lower() in letters %}
     <div class="chip">
       <div class="chip-content"> <a href="/author/{{a.fullname | e}}">{{a.fullname}}</a></div>
     </div>
     {% else %}
-    {% set letters = letters.append(a.fullname[0]) %}
+    {% set letters = letters.append(a.fullname[0].lower()) %}
     {% if loop.index > 1 %}
     <br/>
     {% endif %}
@@ -108,12 +108,12 @@
     {% for u in users %}
     {#- not anonymous anonymous -#}
     {%- if u.userid != 1 -%}
-    {% if u.username[0] in letters %}
+    {% if u.username[0].lower() in letters %}
     <div class="chip">
       <div class="chip-content"><a href="/{{u.username | e}}">{{u.username}}</a></div>
     </div>
     {% else %}
-    {% set letters = letters.append(u.username[0]) %}
+    {% set letters = letters.append(u.username[0].lower()) %}
     {% if loop.index > 2 %}
     <br/>
     {% endif %}

@@ -10,11 +10,10 @@ from papersite.db import (query_db, get_db, get_domains, get_keywords, get_autho
 from papersite.user import (get_user_id, is_super_admin, is_author_of_paper,
                             is_author_of_comment, user_authenticated, ANONYMOUS)
 
-
 def render_catalog(template_name, **context):
-    domains = query_db("select * from domains order by domainname")
-    keywords = query_db("select * from keywords order by keyword")
-    authors = query_db("select * from authors order by fullname")
+    domains = query_db("select * from domains order by lower(domainname)")
+    keywords = query_db("select * from keywords order by lower(keyword)")
+    authors = query_db("select * from authors order by lower(fullname)")
     users = query_db(
         "select * from users where valid = 1 or userid = 1 order by username")
     return render_template(template_name,
@@ -140,45 +139,51 @@ def author(fullname):
 @app.route('/catalog', methods=['GET'])
 def catalog():
     if request.args.get('q'):
-        authorid = None
-        keywordid = None
-        domainid= None
+        a_ids_str = ''
+        k_ids_str = ''
+        d_ids_str= ''
         q =  request.args.get('q')
         qLike = '%' + request.args.get('q') + '%'
         a = query_db("select authorid from authors where      \
-                       lower(fullname) = lower(?) ",
-                 [q], one=True)
-        if (a is not None):
-            authorid = a['authorid']
+                       lower(fullname) like lower(?) ",
+                 [qLike])
+        a_ids = [str(author['authorid']) for author in a]
+        if(len(a_ids)>0):
+            a_ids_str = ",".join(a_ids)
+        
 
         k = query_db("select keywordid from keywords where      \
-                       lower(keyword) = lower(?)",
-                 [q], one=True)
+                       lower(keyword) like lower(?)",
+                 [qLike])
 
-        if (k is not None):
-            keywordid = k['keywordid']
+        k_ids = [str(keyword['keywordid']) for keyword in k]
+        if(len(k_ids)>0):
+            k_ids_str = ",".join(k_ids)
+
+        d = query_db("select domainid from domains where      \
+                       lower(domainname) like lower(?)",
+                      [qLike])
+
+        d_ids = [str(domain['domainid']) for domain in d]
+        if(len(d_ids)>0):
+            d_ids_str = ",".join(d_ids)
 
 
-        domain = query_db("select domainid from domains where      \
-                       lower(domainname) = lower(?)",
-                      [q], one=True)
-
-        if (domain is not None) :
-           domainid = domain['domainid']
-
-        papers = query_db("select DISTINCT p.*                               \
+        sql = "select DISTINCT p.*                               \
                          from papers as p inner join  papers_authors as pa on p.paperid=pa.paperid                        \
                               inner join  papers_keywords as pk  on    p.paperid=pk.paperid             \
                               inner join  papers_domains as pd  on p.paperid=pd.paperid \
+                              and p.deleted_at is null \
                               and           \
-                              (pa.authorid = ?                      \
+                              (pa.authorid In ("+ a_ids_str +")                      \
                                or                                   \
-                               pk.keywordid = ?                   \
+                               pk.keywordid In ("+ k_ids_str +")                   \
                                or \
-                               pd.domainid= ? \
+                               pd.domainid In ("+ d_ids_str +") \
                                or \
-                               lower(title)  like  lower(?))       \
-                         order by p.lastcommentat desc", [authorid,keywordid,domainid,qLike])
+                               lower(title)  like  lower('"+ qLike +"'))       \
+                         order by p.lastcommentat desc"
+        papers = query_db(sql)
 
     else:
         papers = []
@@ -366,3 +371,4 @@ def edit_tag(keyword):
                            name=keyword,
                            titleP="Edit the tag",
                            keywords=query_db("select * from keywords where not (keyword = ?)", [keyword]))
+
